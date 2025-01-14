@@ -6,6 +6,7 @@ import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.repository.AutorRepository;
 import com.github.felipeaaa1.libraryapi.repository.LivroRepository;
 import com.github.felipeaaa1.libraryapi.validator.AutorValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,18 +17,13 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AutorService {
 
     private final AutorRepository autorRepository;
     private final LivroRepository livroRepository;
     private final AutorValidator autorValidator;
 
-
-    public AutorService(AutorRepository autorRepository, LivroRepository livroRepository, AutorValidator autorValidator){
-        this.autorRepository = autorRepository;
-        this.autorValidator  = autorValidator;
-        this.livroRepository = livroRepository;
-    }
     
     public Autor salvar(Autor autor){
         autorValidator.validar(autor);

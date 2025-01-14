@@ -6,6 +6,7 @@ import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitida;
 import com.github.felipeaaa1.libraryapi.exception.RegistroDuplicadoException;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.service.AutorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +21,11 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("autor")
+@RequiredArgsConstructor
 public class AutorController {
 
     private final AutorService autorService;
 
-    public AutorController(AutorService autorService){
-        this.autorService = autorService;
-    }
 
 
     @GetMapping

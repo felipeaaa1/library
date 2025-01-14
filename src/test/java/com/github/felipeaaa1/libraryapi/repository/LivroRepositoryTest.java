@@ -34,10 +34,10 @@ class LivroRepositoryTest {
         livro.setGenero(GeneroLivro.CIENCIA);
         livro.setDataPublicacao(LocalDate.of(2020,10, 31));
 
-        List<Autor> list = autorRepository.findAll();
-        if (!list.isEmpty()){
-            livro.setAutor(list.getFirst());
-        }
+        Autor autor = autorRepository.findById(UUID.fromString("3c1ade85-54e9-4bbc-a834-c9d1d182bfe5"))
+                .orElseThrow(() -> new RuntimeException("Autor não encontrado"));
+        livro.setAutor(autor);
+
         livroRepository.save(livro);
     }
 

@@ -1,8 +1,11 @@
 package com.github.felipeaaa1.libraryapi.service;
 
 import com.github.felipeaaa1.libraryapi.controller.dto.AutorDTO;
+import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitida;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.repository.AutorRepository;
+import com.github.felipeaaa1.libraryapi.repository.LivroRepository;
+import com.github.felipeaaa1.libraryapi.validator.AutorValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +19,19 @@ import java.util.UUID;
 public class AutorService {
 
     private final AutorRepository autorRepository;
+    private final LivroRepository livroRepository;
+    private final AutorValidator autorValidator;
 
-    public AutorService(AutorRepository autorRepository){
+
+    public AutorService(AutorRepository autorRepository, LivroRepository livroRepository, AutorValidator autorValidator){
         this.autorRepository = autorRepository;
+        this.autorValidator  = autorValidator;
+        this.livroRepository = livroRepository;
     }
     
-    public Autor salvar(AutorDTO autorDTO){
-        return autorRepository.save(autorDTO.retornaAutor());
+    public Autor salvar(Autor autor){
+        autorValidator.validar(autor);
+        return autorRepository.save(autor);
     }
 
     public Autor obterPorId(String id) {
@@ -34,9 +43,13 @@ public class AutorService {
     public void deletar(String id) {
         UUID uuid = UUID.fromString(id);
         Autor autor = autorRepository.findById(uuid) // Lança IllegalArgumentException se o UUID for inválido
-                .orElseThrow(NoSuchElementException::new); // Lança exceção se tentar excluir autor com UUID errado
+                .orElseThrow(NoSuchElementException::new);// Lança exceção se tentar excluir autor com UUID errado
+        if (existLivro(autor)){
+            throw new OperacaoNaoPermitida("O autor "+autor.getNome()+" possui livros cadastrados");
+        }
         autorRepository.delete(autor);
     }
+
 
 
     public List<Autor> listarAutores(String nome, String nacionalidade) {
@@ -57,6 +70,11 @@ public class AutorService {
         Autor autor = this.obterPorId(id);
         autor.setNacionalidade(autorDTO.nacionalidade());
         autor.setNome(autorDTO.nome());
+        autorValidator.validar(autor);
         autorRepository.save(autor);
+    }
+
+    private boolean existLivro(Autor autor) {
+        return livroRepository.existsByAutor(autor);
     }
 }

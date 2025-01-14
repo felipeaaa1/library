@@ -1,6 +1,9 @@
 package com.github.felipeaaa1.libraryapi.controller;
 
 import com.github.felipeaaa1.libraryapi.controller.dto.AutorDTO;
+import com.github.felipeaaa1.libraryapi.controller.dto.ErroRespostaDTO;
+import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitida;
+import com.github.felipeaaa1.libraryapi.exception.RegistroDuplicadoException;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.service.AutorService;
 import org.springframework.http.HttpStatus;
@@ -54,17 +57,19 @@ public class AutorController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> salvar(@RequestBody AutorDTO autorDTO){
-        Autor autorCriado = autorService.salvar(autorDTO);
-
+    public ResponseEntity<?> salvar(@RequestBody AutorDTO autorDTO){
+        try{
+            Autor autorCriado = autorService.salvar(autorDTO.retornaAutor());
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(autorCriado.getId())
                 .toUri();
-
-
         return ResponseEntity.created(uri).build();
+        }catch (RegistroDuplicadoException e){
+            var erro =  ErroRespostaDTO.conflito(e.getMessage());
+            return ResponseEntity.status(erro.status()).body(erro.mensagem());// UUID inválido
+        }
     }
 
     @DeleteMapping("{id}")
@@ -76,6 +81,9 @@ public class AutorController {
             return ResponseEntity.badRequest().body("UUID inválido: " + id);// UUID inválido
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado"); // Autor não encontrado
+        } catch (OperacaoNaoPermitida e){
+            var erro = new ErroRespostaDTO(HttpStatus.UNAUTHORIZED.value(),e.getMessage(),List.of());
+            return ResponseEntity.status(erro.status()).body(erro.mensagem());
         }
     }
 
@@ -85,12 +93,14 @@ public class AutorController {
         try{
             autorService.atualizar(id, autorDTO);
             return this.getAutor(id);
-    }catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body("UUID inválido: " + id);// UUID inválido
-    } catch (NoSuchElementException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado"); // Autor não encontrado
-    }
-
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("UUID inválido: " + id);// UUID inválido
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado"); // Autor não encontrado
+        }catch (RegistroDuplicadoException e){
+            var erro =  ErroRespostaDTO.conflito(e.getMessage());
+            return ResponseEntity.status(erro.status()).body(erro.mensagem());// UUID inválido
+        }
     }
 
 

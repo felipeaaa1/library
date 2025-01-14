@@ -73,9 +73,9 @@ public class AutorRepositoryTest {
 
     @Test
     public void deletarTest(){
-        Optional<Autor> teste = repository.findByNome("teste");
-        if (teste.isPresent()) {
-            Autor encontrado = teste.get();
+        List<Autor> teste = repository.findByNomeLike("teste");
+        if (!teste.isEmpty()) {
+            Autor encontrado = teste.getFirst();
             System.out.println("Encontrado :");
             System.out.println(encontrado);
             repository.delete(encontrado);

@@ -7,6 +7,8 @@ import com.github.felipeaaa1.libraryapi.repository.AutorRepository;
 import com.github.felipeaaa1.libraryapi.repository.LivroRepository;
 import com.github.felipeaaa1.libraryapi.validator.AutorValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -46,9 +48,25 @@ public class AutorService {
         autorRepository.delete(autor);
     }
 
+    public List<Autor> pesquisarComExemple(String nome, String nacionalidade){
+        Autor autorExemplo = new Autor();
+        autorExemplo.setNome(nome);
+        autorExemplo.setNacionalidade(nacionalidade);
 
+        ExampleMatcher matcher = ExampleMatcher
+                .matching()
+                .withIgnoreCase()
+                .withIgnoreNullValues()
+                .withIgnorePaths("id", "dataCadatro")
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
-    public List<Autor> listarAutores(String nome, String nacionalidade) {
+        Example<Autor> example = Example.of(autorExemplo, matcher);
+
+        return autorRepository.findAll(example);
+    }
+
+    //não vou mais usar esse metodo pois a pesquisa com exemples é otimizada
+    public List<Autor> pesquisaBurra(String nome, String nacionalidade) {
         if (nome != null && nacionalidade != null){
             return autorRepository.findByNomeLikeAndNacionalidade("%"+nome+"%", nacionalidade);
         }

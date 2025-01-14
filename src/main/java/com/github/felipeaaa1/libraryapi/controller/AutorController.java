@@ -6,6 +6,7 @@ import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitida;
 import com.github.felipeaaa1.libraryapi.exception.RegistroDuplicadoException;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.service.AutorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class AutorController {
     public ResponseEntity<List<AutorDTO>> listarAutores(
             @RequestParam(name = "nome", required = false) String nome,
             @RequestParam(name = "nacionalidade", required = false) String nacionalidade){
-        List<Autor> lista = autorService.listarAutores(nome, nacionalidade);
+        List<Autor> lista = autorService.pesquisarComExemple(nome, nacionalidade);
         List<AutorDTO> listaDTO =
                 lista.stream().map(autor -> new AutorDTO(
                         autor.getId(),
@@ -56,7 +57,7 @@ public class AutorController {
     }
 
     @PostMapping
-    public ResponseEntity<?> salvar(@RequestBody AutorDTO autorDTO){
+    public ResponseEntity<?> salvar(@RequestBody @Valid AutorDTO autorDTO){
         try{
             Autor autorCriado = autorService.salvar(autorDTO.retornaAutor());
         URI uri = ServletUriComponentsBuilder
@@ -88,7 +89,7 @@ public class AutorController {
 
     @PutMapping("{id}")
     public ResponseEntity<?> atualizarAutor(@PathVariable(name = "id") String id
-            ,@RequestBody AutorDTO autorDTO){
+            ,@RequestBody @Valid AutorDTO autorDTO){
         try{
             autorService.atualizar(id, autorDTO);
             return this.getAutor(id);

@@ -2,6 +2,7 @@ package com.github.felipeaaa1.libraryapi.controller;
 
 import com.github.felipeaaa1.libraryapi.controller.dto.AutorDTO;
 import com.github.felipeaaa1.libraryapi.controller.dto.ErroRespostaDTO;
+import com.github.felipeaaa1.libraryapi.controller.mappers.AutorMapper;
 import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitida;
 import com.github.felipeaaa1.libraryapi.exception.RegistroDuplicadoException;
 import com.github.felipeaaa1.libraryapi.model.Autor;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.print.DocFlavor;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +29,7 @@ public class AutorController {
 
     private final AutorService autorService;
 
+    private final AutorMapper autorMapper;
 
 
     @GetMapping
@@ -35,21 +38,27 @@ public class AutorController {
             @RequestParam(name = "nacionalidade", required = false) String nacionalidade){
         List<Autor> lista = autorService.pesquisarComExemple(nome, nacionalidade);
         List<AutorDTO> listaDTO =
-                lista.stream().map(autor -> new AutorDTO(
-                        autor.getId(),
-                        autor.getNome(),
-                        autor.getDataNascimento(),
-                        autor.getNacionalidade())
+                lista.stream().map(
+                        autorMapper::toDTO
                 ).collect(Collectors.toList());
 
         return ResponseEntity.ok(listaDTO);
     }
+
     @GetMapping("{id}")
     public ResponseEntity<?> getAutor(@PathVariable(name = "id") String id) {
         try {
-            Autor autor = autorService.obterPorId(id);
-            return ResponseEntity.ok(autor);
-        } catch (IllegalArgumentException e) {
+            return autorService.obterPorId(id)
+                    .map(autor -> {
+                        AutorDTO dto = autorMapper.toDTO(autor);
+                        return ResponseEntity.ok(dto);
+                    }).orElseGet( () -> ResponseEntity.notFound().build());
+
+        }
+//            Autor autor = autorService.obterPorId(id);
+//            AutorDTO dto = autorMapper.toDTO(autor);
+//            return ResponseEntity.ok(dto);
+        catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("UUID inválido: "+id); // UUID inválido
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado"); // Autor não encontrado
@@ -59,7 +68,8 @@ public class AutorController {
     @PostMapping
     public ResponseEntity<?> salvar(@RequestBody @Valid AutorDTO autorDTO){
         try{
-            Autor autorCriado = autorService.salvar(autorDTO.retornaAutor());
+            Autor autor = autorMapper.toEntity(autorDTO);
+            Autor autorCriado = autorService.salvar(autor);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")

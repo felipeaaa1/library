@@ -9,13 +9,13 @@ import com.github.felipeaaa1.libraryapi.validator.AutorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,10 +32,9 @@ public class AutorService {
         return autorRepository.save(autor);
     }
 
-    public Autor obterPorId(String id) {
+    public Optional<Autor> obterPorId(String id) {
         UUID uuid = UUID.fromString(id); // Lança IllegalArgumentException se o UUID for inválido
-        return autorRepository.findById(uuid)
-                .orElseThrow(NoSuchElementException::new); // Lança exceção se não encontrar
+        return autorRepository.findById(uuid);
     }
 
     public void deletar(String id) {
@@ -81,7 +80,7 @@ public class AutorService {
     }
 
     public void atualizar(String id, AutorDTO autorDTO) {
-        Autor autor = this.obterPorId(id);
+        Autor autor = this.obterPorId(id).orElseThrow(NoSuchElementException::new);
         autor.setNacionalidade(autorDTO.nacionalidade());
         autor.setNome(autorDTO.nome());
         autorValidator.validar(autor);

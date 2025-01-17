@@ -15,18 +15,11 @@ public record AutorDTO(
         @Size(min = 2, max = 100, message = "Campo fora do tamanho padrão")
         String nome,
         @NotNull(message = "Campo obrigatório")
-        @Past(message = "Data de Nascimento não pode ser uma data futura")
+        @Past(message = "Não pode ser uma data futura")
         LocalDate dataNascimento,
         @NotBlank(message = "Campo obrigatório")
         @Size(min = 2, max = 50, message = "Campo fora do tamanho padrão")
         String nacionalidade) {
 
-    public Autor retornaAutor(){
-        Autor a = new Autor();
-        a.setNome(this.nome);
-        a.setDataNascimento(this.dataNascimento);
-        a.setNacionalidade(this.nacionalidade);
-        return a;
-}
 
 }

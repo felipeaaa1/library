@@ -28,8 +28,8 @@ class LivroRepositoryTest {
     @Test
     public void salvarLivro(){
         Livro livro = new Livro();
-        livro.setTitulo("teste ciencia 2");
-        livro.setIsbn("83829-1212");
+        livro.setTitulo("teste datas 2");
+        livro.setIsbn("8312219-1212");
         livro.setPreco(BigDecimal.valueOf(91));
         livro.setGenero(GeneroLivro.CIENCIA);
         livro.setDataPublicacao(LocalDate.of(2020,10, 31));

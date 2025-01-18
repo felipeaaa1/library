@@ -49,16 +49,6 @@ public class AutorController implements GenericController {
                     AutorDTO dto = autorMapper.toDTO(autor);
                     return ResponseEntity.ok(dto);
                 }).orElseGet(() -> ResponseEntity.notFound().build());
-
-
-//            Autor autor = autorService.obterPorId(id);
-//            AutorDTO dto = autorMapper.toDTO(autor);
-//            return ResponseEntity.ok(dto);
-//        catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body("UUID inválido: "+id); // UUID inválido
-//        } catch (NoSuchElementException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado"); // Autor não encontrado
-//        }
     }
 
     @PostMapping
@@ -66,33 +56,14 @@ public class AutorController implements GenericController {
 
         Autor autor = autorMapper.toEntity(autorDTO);
         Autor autorCriado = autorService.salvar(autor);
-//            coloquei o gerador de URI num controlador generico para limpar o cod.
         URI uri = gerarHeaderLocation(autor.getId());
-//            porém vou deixar aqui pra ver o que ta sendo feito la e vai ficar sujo mesmo (y)
-//        URI uri = ServletUriComponentsBuilder
-//                .fromCurrentRequest()
-//                .path("/{id}")
-//                .buildAndExpand(autorCriado.getId())
-//                .toUri();
         return ResponseEntity.created(uri).build();
-//        }catch (RegistroDuplicadoException e){
-//            var erro =  ErroRespostaDTO.conflito(e.getMessage());
-//            return ResponseEntity.status(erro.status()).body(erro.mensagem());// UUID inválido
-//        }
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> deletarAutor(@PathVariable(name = "id") String id) {
         autorService.deletar(id);
         return ResponseEntity.noContent().build();
-//        }catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body("UUID inválido: " + id);// UUID inválido
-//        } catch (NoSuchElementException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado"); // Autor não encontrado
-//        } catch (OperacaoNaoPermitidaException e){
-//            var erro = new ErroRespostaDTO(HttpStatus.UNAUTHORIZED.value(),e.getMessage(),List.of());
-//            return ResponseEntity.status(erro.status()).body(erro.mensagem());
-//        }
     }
 
     @PutMapping("{id}")
@@ -100,14 +71,6 @@ public class AutorController implements GenericController {
             , @RequestBody @Valid AutorDTO autorDTO) {
         autorService.atualizar(id, autorDTO);
         return this.getAutor(id);
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body("UUID inválido: " + id);// UUID inválido
-//        } catch (NoSuchElementException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado"); // Autor não encontrado
-//        }catch (RegistroDuplicadoException e){
-//            var erro =  ErroRespostaDTO.conflito(e.getMessage());
-//            return ResponseEntity.status(erro.status()).body(erro.mensagem());// UUID inválido
-//        }
     }
 
 

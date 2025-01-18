@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -20,7 +21,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ErroRespostaDTO handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+    public ErroRespostaDTO handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         System.err.println(e.getMessage());
         List<FieldError> fieldError = e.getFieldErrors();
         List<ErroCampoDTO> erros = fieldError.stream().map(fe -> new ErroCampoDTO(fe.getField(), fe.getDefaultMessage()))
@@ -35,14 +36,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RegistroDuplicadoException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErroRespostaDTO hanleRegistroDuplicadoException(RegistroDuplicadoException e){
-        return  ErroRespostaDTO.conflito(e.getMessage());
+    public ErroRespostaDTO hanleRegistroDuplicadoException(RegistroDuplicadoException e) {
+        return ErroRespostaDTO.conflito(e.getMessage());
 
     }
 
     @ExceptionHandler(OperacaoNaoPermitidaException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErroRespostaDTO handleOperacaoNaoPermitidaException(OperacaoNaoPermitidaException e){
+    public ErroRespostaDTO handleOperacaoNaoPermitidaException(OperacaoNaoPermitidaException e) {
         return ErroRespostaDTO.respostaPadrao(e.getMessage());
     }
 
@@ -56,16 +57,26 @@ public class GlobalExceptionHandler {
         }
         return new ErroRespostaDTO(
                 HttpStatus.BAD_REQUEST.value(),
-                mensagem==null? e.getMessage(): mensagem,
+                mensagem == null ? e.getMessage() : mensagem,
                 List.of());
     }
 
-    @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErroRespostaDTO handleExcecaonaotratada(RuntimeException e){
+    @ExceptionHandler(RuntimeException.class)
+    public ErroRespostaDTO handleExcecaonaotratada(RuntimeException e) {
         return new ErroRespostaDTO(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Parabén usuário, vc achou um erro não tratado, por favor contate o suporte mandando o que aconteceu: "+e.getMessage(),
+                "Parabén usuário, vc achou um erro não tratado, por favor contate o suporte mandando o que aconteceu: " + e.getMessage(),
                 List.of());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoSuchElementException.class)
+    public ErroRespostaDTO handleNoSuchElementException(NoSuchElementException e) {
+        return new ErroRespostaDTO(
+                HttpStatus.NOT_FOUND.value(),
+                "Elemento com id fornecido não encontrado",
+                List.of()
+        );
     }
 }

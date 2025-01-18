@@ -32,7 +32,11 @@ public class AutorService {
 
     public Optional<Autor> obterPorId(String id) {
         UUID uuid = UUID.fromString(id); // Lança IllegalArgumentException se o UUID for inválido
-        return autorRepository.findById(uuid);
+        Optional autor = autorRepository.findById(uuid);
+        if (autor.isPresent())
+            return autor;
+        else
+            throw new NoSuchElementException();
     }
 
     public void deletar(String id) {

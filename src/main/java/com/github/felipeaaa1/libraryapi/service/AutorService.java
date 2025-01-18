@@ -1,7 +1,7 @@
 package com.github.felipeaaa1.libraryapi.service;
 
 import com.github.felipeaaa1.libraryapi.controller.dto.AutorDTO;
-import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitida;
+import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitidaException;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.repository.AutorRepository;
 import com.github.felipeaaa1.libraryapi.repository.LivroRepository;
@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-
-
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,8 +24,8 @@ public class AutorService {
     private final LivroRepository livroRepository;
     private final AutorValidator autorValidator;
 
-    
-    public Autor salvar(Autor autor){
+
+    public Autor salvar(Autor autor) {
         autorValidator.validar(autor);
         return autorRepository.save(autor);
     }
@@ -39,15 +37,16 @@ public class AutorService {
 
     public void deletar(String id) {
         UUID uuid = UUID.fromString(id);
+
         Autor autor = autorRepository.findById(uuid) // Lança IllegalArgumentException se o UUID for inválido
                 .orElseThrow(NoSuchElementException::new);// Lança exceção se tentar excluir autor com UUID errado
-        if (existLivro(autor)){
-            throw new OperacaoNaoPermitida("O autor "+autor.getNome()+" possui livros cadastrados");
+        if (existLivro(autor)) {
+            throw new OperacaoNaoPermitidaException("O autor " + autor.getNome() + " possui livros cadastrados");
         }
         autorRepository.delete(autor);
     }
 
-    public List<Autor> pesquisarComExemple(String nome, String nacionalidade){
+    public List<Autor> pesquisarComExemple(String nome, String nacionalidade) {
         Autor autorExemplo = new Autor();
         autorExemplo.setNome(nome);
         autorExemplo.setNacionalidade(nacionalidade);
@@ -66,16 +65,15 @@ public class AutorService {
 
     //não vou mais usar esse metodo pois a pesquisa com exemples é otimizada
     public List<Autor> pesquisaBurra(String nome, String nacionalidade) {
-        if (nome != null && nacionalidade != null){
-            return autorRepository.findByNomeLikeAndNacionalidade("%"+nome+"%", nacionalidade);
+        if (nome != null && nacionalidade != null) {
+            return autorRepository.findByNomeLikeAndNacionalidade("%" + nome + "%", nacionalidade);
         }
-        if(nome  != null){
-            return autorRepository.findByNomeLike("%"+nome+"%");
+        if (nome != null) {
+            return autorRepository.findByNomeLike("%" + nome + "%");
         }
-        if (nacionalidade  != null){
+        if (nacionalidade != null) {
             return autorRepository.findByNacionalidade(nacionalidade);
-        }
-        else
+        } else
             return autorRepository.findAll().stream().toList();
     }
 

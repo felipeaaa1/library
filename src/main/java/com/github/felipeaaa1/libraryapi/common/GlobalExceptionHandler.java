@@ -2,6 +2,7 @@ package com.github.felipeaaa1.libraryapi.common;
 
 import com.github.felipeaaa1.libraryapi.controller.dto.ErroCampoDTO;
 import com.github.felipeaaa1.libraryapi.controller.dto.ErroRespostaDTO;
+import com.github.felipeaaa1.libraryapi.exception.CampoInvalidoException;
 import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitidaException;
 import com.github.felipeaaa1.libraryapi.exception.RegistroDuplicadoException;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RegistroDuplicadoException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErroRespostaDTO hanleRegistroDuplicadoException(RegistroDuplicadoException e) {
+        System.err.println(e.getMessage());
+
         return ErroRespostaDTO.conflito(e.getMessage());
 
     }
@@ -44,12 +47,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OperacaoNaoPermitidaException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErroRespostaDTO handleOperacaoNaoPermitidaException(OperacaoNaoPermitidaException e) {
+        System.err.println(e.getMessage());
+
         return ErroRespostaDTO.respostaPadrao(e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErroRespostaDTO handleIllegalArgumentException(IllegalArgumentException e) {
+        System.err.println(e.getMessage());
         String mensagem = null;
         if (e.getMessage().contains("Invalid UUID string")) {
             mensagem = Arrays.stream(e.getMessage().split(":")).toList().getLast();
@@ -64,19 +70,31 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException.class)
     public ErroRespostaDTO handleExcecaonaotratada(RuntimeException e) {
+        System.err.println(e.getMessage());
         return new ErroRespostaDTO(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Parabén usuário, vc achou um erro não tratado, por favor contate o suporte mandando o que aconteceu: " + e.getMessage(),
+                "Parabéns usuário, vc achou um erro não tratado, por favor contate o suporte mandando o que aconteceu: " + e.getMessage(),
                 List.of());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoSuchElementException.class)
     public ErroRespostaDTO handleNoSuchElementException(NoSuchElementException e) {
+        System.err.println(e.getMessage());
         return new ErroRespostaDTO(
                 HttpStatus.NOT_FOUND.value(),
                 "Elemento com id fornecido não encontrado",
                 List.of()
+        );
+    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CampoInvalidoException.class)
+    public ErroRespostaDTO handleCampoInvalidoException(CampoInvalidoException e) {
+        System.err.println(e.getMessage());
+        return new ErroRespostaDTO(
+                HttpStatus.NOT_FOUND.value(),
+                "Campo Obrigatório",
+                List.of(new ErroCampoDTO(e.getCampo(), e.getMessage()))
         );
     }
 }

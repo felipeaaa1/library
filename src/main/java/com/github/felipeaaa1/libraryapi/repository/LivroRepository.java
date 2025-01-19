@@ -4,6 +4,7 @@ import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.model.Livro;
 import com.github.felipeaaa1.libraryapi.model.enums.GeneroLivro;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,9 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public interface LivroRepository extends JpaRepository<Livro, UUID> {
+public interface LivroRepository extends JpaRepository<Livro, UUID>, JpaSpecificationExecutor<Livro> {
 
 
     boolean existsByAutor(Autor autor);
@@ -50,4 +52,5 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
     @Query("update Livro l set l.titulo = :novoTitulo where l.id = :id ")
     void atualizaPorId(@Param("id") UUID id, @Param("novoTitulo") String titulo);
 
+    Optional<Livro> findByIsbnOrTitulo(String isbn, String titulo);
 }

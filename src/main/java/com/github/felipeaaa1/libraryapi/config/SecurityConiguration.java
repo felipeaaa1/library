@@ -18,7 +18,14 @@ public class SecurityConiguration {
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(Customizer.withDefaults())
+
+//                assim o form login pega o default do spring
+//                .formLogin(Customizer.withDefaults())
+
+//                assim é para o spring indicar a nossa pagina de login persinalizada
+                .formLogin(configurer->{
+                    configurer.loginPage("/login").permitAll();
+                })
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> {
                     authorize.anyRequest().authenticated();

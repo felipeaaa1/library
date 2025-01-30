@@ -6,6 +6,7 @@ import com.github.felipeaaa1.libraryapi.exception.CampoInvalidoException;
 import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitidaException;
 import com.github.felipeaaa1.libraryapi.exception.RegistroDuplicadoException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,13 +68,25 @@ public class GlobalExceptionHandler {
                 List.of());
     }
 
+
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException.class)
     public ErroRespostaDTO handleExcecaonaotratada(RuntimeException e) {
         System.err.println(e.getMessage());
         return new ErroRespostaDTO(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Parabéns usuário, vc achou um erro não tratado, por favor contate o suporte mandando o que aconteceu: " + e.getMessage(),
+                "Parabéns usuário, vc achou um erro não tratado, por favor contate o suporte mandando o que aconteceu: --mensagem:" + e.getMessage()+" causa: "+e.getCause(),
+                List.of());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ErroRespostaDTO handleAcaoNaoPermitida(AccessDeniedException e) {
+        System.err.println(e.getMessage());
+        return new ErroRespostaDTO(
+                HttpStatus.FORBIDDEN.value(),
+                "Ação não permitida para esse usuário",
                 List.of());
     }
 

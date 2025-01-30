@@ -14,6 +14,7 @@ import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("livro")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 public class LivroController implements GenericController {
     private final LivroService livroService;
     private final LivroMapper livroMapper;
@@ -68,6 +70,7 @@ public class LivroController implements GenericController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> salvar(@RequestBody @Valid RequestLivroDTO requestLivroDTO) {
         Livro livro = livroMapper.toEntity(requestLivroDTO);
         Livro livroCadastrado = livroService.salvar(livro);
@@ -76,6 +79,7 @@ public class LivroController implements GenericController {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> atualizarLivro(@PathVariable(name = "id") String id,
                                             @RequestBody @Valid RequestLivroDTO dto){
         return livroService.getPorId(id)
@@ -95,6 +99,7 @@ public class LivroController implements GenericController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deletar(@PathVariable(name = "id") String id){
         return livroService.getPorId(id)
                 .map( livro -> {

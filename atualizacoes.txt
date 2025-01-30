@@ -1,0 +1,60 @@
+*commit 30/01:*
+
+SecurityConfiguration.java
+Configurada a segurança da aplicação com endpoints permitAll e introdução do uso de UserDetails para autenticação e autorização.
+
+Método encoder()
+Função:
+Retorna uma instância de BCryptPasswordEncoder, que implementa a interface PasswordEncoder do Spring Security.
+Importância:
+O BCryptPasswordEncoder é uma das formas mais seguras de armazenar senhas, pois aplica hashing e inclui um salt aleatório para cada senha, dificultando ataques de força bruta.
+Parâmetro:
+O número 10 representa a força do algoritmo (work factor), determinando a complexidade e o tempo gasto na criptografia.
+Método userDetailsService()
+Função:
+Define o serviço de autenticação do Spring Security, associando uma implementação de UserDetailsService (CustomUserDetailsService) ao serviço UsuarioService fornecido.
+Motivação:
+O Spring Security precisa de um UserDetailsService para buscar detalhes de usuários (username, senha, roles) a partir de uma fonte personalizada, como um banco de dados.
+Observação:
+O trecho comentado com User.builder() cria usuários em memória, útil para testes, mas a prática recomendada é carregar os dados do usuário de uma fonte persistente, como está sendo feito com CustomUserDetailsService.
+Método securityFilterChain()
+Função:
+Configura a cadeia de filtros de segurança do Spring Security para gerenciar autenticação e autorização.
+Principais Configurações:
+Desabilitação do CSRF: csrf(AbstractHttpConfigurer::disable) — Desativa a proteção CSRF, algo que pode ser justificável para APIs REST.
+Configuração de Login:
+formLogin(configurer -> configurer.loginPage("/login").permitAll());
+Define uma página de login personalizada em /login, permitindo o acesso público.
+Autorização de Requisições:
+authorize.requestMatchers(HttpMethod.POST, "/usuario").permitAll(); — Permite POST no endpoint /usuario sem autenticação.
+authorize.anyRequest().authenticated(); — Exige autenticação para todas as demais requisições.
+Basic Authentication: httpBasic(Customizer.withDefaults()) — Habilita a autenticação básica HTTP.
+Motivação:
+O SecurityFilterChain permite uma configuração declarativa e programática da segurança HTTP com flexibilidade para adaptar regras por endpoint.
+
+
+
+GlobalExceptionHandler.java
+Adicionada tratativa para exceção AccessDeniedException, retornando status 403 Forbidden e mensagem personalizada:
+
+@ResponseStatus(HttpStatus.FORBIDDEN)
+@ExceptionHandler(AccessDeniedException.class)
+public ErroRespostaDTO handleAcaoNaoPermitida(AccessDeniedException e) {
+    return new ErroRespostaDTO(
+            HttpStatus.FORBIDDEN.value(),
+            "Ação não permitida para esse usuário",
+            List.of());
+}
+
+
+Controller de Livro e Autor
+Adicionadas a seguinte anotação para controle de acesso para endpoints de leitura:
+@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+
+Adicionadas a seguinte anotação para controle de acesso para endpoints de escrita/atualização/deleção:
+@PreAuthorize("hasRole('ADMIN')")
+
+Service de Livro e Autor
+Inclusão de auditoria ao registrar um novo registro, associando o usuário logado:
+String usuarioLogado = securityService.obterUsuarioLogado();
+novoRegistro.setUsuarioCriacao(usuarioLogado);

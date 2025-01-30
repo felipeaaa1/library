@@ -5,6 +5,7 @@ import com.github.felipeaaa1.libraryapi.exception.OperacaoNaoPermitidaException;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.repository.AutorRepository;
 import com.github.felipeaaa1.libraryapi.repository.LivroRepository;
+import com.github.felipeaaa1.libraryapi.security.SecurityService;
 import com.github.felipeaaa1.libraryapi.validator.AutorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
@@ -23,10 +24,12 @@ public class AutorService {
     private final AutorRepository autorRepository;
     private final LivroRepository livroRepository;
     private final AutorValidator autorValidator;
+    private final SecurityService securityService;
 
 
     public Autor salvar(Autor autor) {
         autorValidator.validar(autor);
+        autor.setUsuario(securityService.obterUsuarioLogado());
         return autorRepository.save(autor);
     }
 
@@ -86,6 +89,7 @@ public class AutorService {
         autor.setNacionalidade(autorDTO.nacionalidade());
         autor.setNome(autorDTO.nome());
         autorValidator.validar(autor);
+        autor.setUsuario(securityService.obterUsuarioLogado());
         autorRepository.save(autor);
     }
 

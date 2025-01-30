@@ -5,6 +5,7 @@ import com.github.felipeaaa1.libraryapi.model.Livro;
 import com.github.felipeaaa1.libraryapi.model.enums.GeneroLivro;
 import com.github.felipeaaa1.libraryapi.repository.AutorRepository;
 import com.github.felipeaaa1.libraryapi.repository.LivroRepository;
+import com.github.felipeaaa1.libraryapi.security.SecurityService;
 import com.github.felipeaaa1.libraryapi.validator.LivroValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,9 +25,11 @@ public class LivroService {
     private final LivroRepository livroRepository;
     private final AutorRepository autorRepository;
     private final LivroValidator livroValidator;
+    private final SecurityService securityService;
 
     public Livro salvar(Livro livro) {
             livroValidator.validar(livro);
+            livro.setUsuario(securityService.obterUsuarioLogado());
             livroRepository.save(livro);
             return livro;
     }
@@ -74,6 +77,7 @@ public class LivroService {
         if (livro.getId() == null){
             throw new OperacaoNaoPermitidaException("Para atualizar um livro o ID é necessário");
         }
+        livro.setUsuario(securityService.obterUsuarioLogado());
         livroRepository.save(livro);
     }
 }

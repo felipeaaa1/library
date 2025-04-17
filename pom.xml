@@ -84,6 +84,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<version>10.0.0</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
@@ -129,6 +137,17 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>10.0.0</version>
+				<configuration>
+					<url>jdbc:postgresql://localhost:5432/library</url>
+					<user>postgres</user>
+					<password>admin</password>
+				</configuration>
+			</plugin>
+
 
 		</plugins>
 	</build>

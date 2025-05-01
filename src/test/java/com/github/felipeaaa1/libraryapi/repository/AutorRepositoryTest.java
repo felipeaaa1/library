@@ -3,6 +3,7 @@ package com.github.felipeaaa1.libraryapi.repository;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.model.Livro;
 import com.github.felipeaaa1.libraryapi.model.enums.GeneroLivro;
+import com.github.felipeaaa1.libraryapi.security.SecurityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,12 +23,16 @@ public class AutorRepositoryTest {
     @Autowired
     AutorRepository repository;
 
+    @Autowired
+    SecurityService securityService;
+
     @Test
     public void salvarTest(){
         Autor autor = new Autor();
         autor.setNome("teste");
         autor.setNacionalidade("brasileiro");
         autor.setDataNascimento(LocalDate.of(1996, Month.OCTOBER,31));
+        autor.setUsuario(securityService.obterUsuarioLogado());
 
         var autorSalvo = repository.save(autor);
         System.out.println("resultado1: "+autorSalvo);
@@ -37,6 +42,7 @@ public class AutorRepositoryTest {
         autor2.setNacionalidade("argentino");
         autor2.setDataNascimento(LocalDate.of(1992, Month.AUGUST,14));
 
+        autor2.setUsuario(securityService.obterUsuarioLogado());
         var autorSalvo2 = repository.save(autor2);
         System.out.println("resultado: "+autorSalvo2);
 

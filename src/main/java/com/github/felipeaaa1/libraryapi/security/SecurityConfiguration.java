@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +22,8 @@ public class SecurityConfiguration {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, LoginSocialSuccessHandler successHandler)
+            throws Exception{
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -45,6 +47,14 @@ public class SecurityConfiguration {
 //                    authorize.requestMatchers("/livro/**").hasAnyRole("ADMIN", "USER");
                     authorize.anyRequest().authenticated();
                 })
+                .oauth2Login(
+//                        tirar as conigurações padrões para pegar detalhes depois da autenticação google
+//                        Customizer.withDefaults()
+                        oauth2 ->{
+                            oauth2.loginPage("/login")
+                             .successHandler(successHandler);
+                        }
+                )
                 .build();
     }
 
@@ -54,7 +64,8 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder(10);
     }
 
-    @Bean
+//    @Bean
+//    colocando esse metodo com a anotação bean a gente começa a fazer a autenticação manualmente
     public UserDetailsService userDetailsService(UsuarioService usuarioService){
 //        UserDetails user1 = User.builder()
 //                .username("user")
@@ -67,8 +78,13 @@ public class SecurityConfiguration {
 //                .password(encoder.encode("456"))
 //                .roles("ADMIN")
 //                .build();
-
-
         return new CustomUserDetailsService(usuarioService);
     }
+//    metodo para alterar o prefixo da authenticação para nada, basicamente tirari o ROLE_
+    @Bean
+    public GrantedAuthorityDefaults grantedAuthorityDefaults(){
+        return new GrantedAuthorityDefaults("");
+    }
+
+
 }

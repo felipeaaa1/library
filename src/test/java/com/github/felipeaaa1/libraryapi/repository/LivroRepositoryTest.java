@@ -3,6 +3,7 @@ package com.github.felipeaaa1.libraryapi.repository;
 import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.model.Livro;
 import com.github.felipeaaa1.libraryapi.model.enums.GeneroLivro;
+import com.github.felipeaaa1.libraryapi.security.SecurityService;
 import jakarta.transaction.Transactional;
 import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,8 @@ class LivroRepositoryTest {
     @Autowired
     AutorRepository autorRepository;
 
+    @Autowired
+    SecurityService securityService;
 
     @Test
     public void salvarLivro(){
@@ -34,9 +37,10 @@ class LivroRepositoryTest {
         livro.setGenero(GeneroLivro.CIENCIA);
         livro.setDataPublicacao(LocalDate.of(2020,10, 31));
 
-        Autor autor = autorRepository.findById(UUID.fromString("3c1ade85-54e9-4bbc-a834-c9d1d182bfe5"))
+        Autor autor = autorRepository.findById(UUID.fromString("fce3e9da-58fd-4cf4-bd22-356c54a72804"))
                 .orElseThrow(() -> new RuntimeException("Autor não encontrado"));
         livro.setAutor(autor);
+        livro.setUsuario(securityService.obterUsuarioLogado());
 
         livroRepository.save(livro);
     }

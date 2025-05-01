@@ -2,6 +2,7 @@ package com.github.felipeaaa1.libraryapi.model;
 
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 import org.hibernate.annotations.Type;
 
@@ -26,4 +27,7 @@ public class Usuario {
     @Type(ListArrayType.class)
     @Column(name = "roles", columnDefinition = "varchar[]")
     private List<String> roles;
+
+    @Column
+    private String email;
 }

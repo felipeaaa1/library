@@ -22,6 +22,10 @@ public class UsuarioService {
 
      }
 
+     public Usuario obterPorEmail(String email){
+         return  usuarioRepository.findByEmail(email);
+     }
+
      public Usuario obterPorLogin(String login){
          return usuarioRepository.findByLogin(login);
      }

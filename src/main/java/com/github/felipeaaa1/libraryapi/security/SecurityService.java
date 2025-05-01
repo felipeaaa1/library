@@ -15,9 +15,15 @@ public class SecurityService {
     private final UsuarioService usuarioService;
     public Usuario obterUsuarioLogado(){
         Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String login = userDetails.getUsername();
-        Usuario usuario = usuarioService.obterPorLogin(login);
-        return usuario;
+//        removendo essa parte para utilizarmos o authentication do spring security
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//        String login = userDetails.getUsername();
+//        Usuario usuario = usuarioService.obterPorLogin(login);
+
+//        colocando custom auth para retornar o usuario
+        if (authentication instanceof CustomAuthentication customAuthentication)
+            return customAuthentication.getUsuario();
+
+        return null;
     }
 }

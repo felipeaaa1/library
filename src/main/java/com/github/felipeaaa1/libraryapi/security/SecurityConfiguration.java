@@ -13,6 +13,9 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -22,7 +25,9 @@ public class SecurityConfiguration {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, LoginSocialSuccessHandler successHandler)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   LoginSocialSuccessHandler successHandler,
+                                                   JwtCustomAuthenticationFilter jwtCustomAuthenticationFilter)
             throws Exception{
 
         return http
@@ -52,17 +57,46 @@ public class SecurityConfiguration {
 //                        Customizer.withDefaults()
                         oauth2 ->{
                             oauth2.loginPage("/login")
-                             .successHandler(successHandler);
-                        }
-                )
+                             .successHandler(successHandler);})
+                .oauth2ResourceServer(
+                        //só colocar assim para dizer que vamos autenticar com jwt com configurações padrao
+                        oauth2RS -> oauth2RS.jwt(Customizer.withDefaults()))
+                // colocando esse filter pra transformar o auth no nosso custom auth
+                .addFilterAfter(jwtCustomAuthenticationFilter, BearerTokenAuthenticationFilter.class)
                 .build();
     }
+    //    metodo para alterar o prefixo da authenticação para nada, basicamente tirari o ROLE_
+    @Bean
+    public GrantedAuthorityDefaults grantedAuthorityDefaults(){
+        return new GrantedAuthorityDefaults("");
+    }
 
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+        var authorities = new JwtGrantedAuthoritiesConverter();
+        authorities.setAuthorityPrefix("");
+
+        var converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(authorities);
+
+        return converter;
+    }
+
+
+
+
+
+
+
+
+
+/* colocando o passencoder no AuthorizationServerConfiguration
     @Bean
     public PasswordEncoder encoder(){
 
         return new BCryptPasswordEncoder(10);
     }
+*/
 
 //    @Bean
 //    colocando esse metodo com a anotação bean a gente começa a fazer a autenticação manualmente
@@ -80,11 +114,5 @@ public class SecurityConfiguration {
 //                .build();
         return new CustomUserDetailsService(usuarioService);
     }
-//    metodo para alterar o prefixo da authenticação para nada, basicamente tirari o ROLE_
-    @Bean
-    public GrantedAuthorityDefaults grantedAuthorityDefaults(){
-        return new GrantedAuthorityDefaults("");
-    }
-
 
 }

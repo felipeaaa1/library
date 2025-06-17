@@ -1,30 +1,72 @@
-create table autor(
-  id uuid not null primary key,
-  nome varchar(100) not null,
-  data_nascimento date not null,
-  nacionalidade varchar(50) not null,
-  data_cadastro timestamp,
-  data_atualizacao timestamp,
-  id_usuario uuid
-);
+DO $$
+BEGIN
+	RAISE NOTICE 'INITIALIZING MIGRATION TO CREATE TABLES';
+	
+	-- AUTOR
+	IF EXISTS (
+		SELECT 1 FROM information_schema.columns
+		WHERE table_name = 'autor'
+	) THEN
+		RAISE NOTICE 'AUTOR TABLE ALREADY EXISTS...';
+	ELSE
+		RAISE NOTICE 'CREATING AUTOR TABLE';
+		CREATE TABLE autor (
+			id uuid NOT NULL PRIMARY KEY,
+			nome VARCHAR(100) NOT NULL,
+			data_nascimento DATE NOT NULL,
+			nacionalidade VARCHAR(50) NOT NULL,
+			data_cadastro TIMESTAMP,
+			data_atualizacao TIMESTAMP,
+			id_usuario UUID
+		);
+		RAISE NOTICE 'AUTOR TABLE CREATED SUCCESSFULLY';
+	END IF;
 
-create table livro (
-   id uuid not null primary key,
-   isbn varchar(20) not null unique,
-   titulo varchar(150) not null,
-   data_publicacao date not null,
-   genero varchar(30) not null,
-   preco numeric(18,2),
-   data_cadastro timestamp,
-   data_atualizacao timestamp,
-   id_usuario uuid,
-   id_autor uuid not null references autor(id),
-   constraint chk_genero check (genero in ('FICCAO', 'FANTASIA', 'MISTERIO','ROMANCE', 'BIOGRAFIA', 'CIENCIA') )
-);
+	-- LIVRO
+	IF EXISTS (
+		SELECT 1 FROM information_schema.columns
+		WHERE table_name = 'livro'
+	) THEN
+		RAISE NOTICE 'LIVRO TABLE ALREADY EXISTS...';
+	ELSE
+		RAISE NOTICE 'CREATING LIVRO TABLE';
+		CREATE TABLE livro (
+			id UUID NOT NULL PRIMARY KEY,
+			isbn VARCHAR(20) NOT NULL UNIQUE,
+			titulo VARCHAR(150) NOT NULL,
+			data_publicacao DATE NOT NULL,
+			genero VARCHAR(30) NOT NULL,
+			preco NUMERIC(18,2),
+			data_cadastro TIMESTAMP,
+			data_atualizacao TIMESTAMP,
+			id_usuario UUID,
+			id_autor UUID NOT NULL REFERENCES autor(id),
+			CONSTRAINT chk_genero CHECK (
+				genero IN ('FICCAO', 'FANTASIA', 'MISTERIO', 'ROMANCE', 'BIOGRAFIA', 'CIENCIA')
+			)
+		);
+		RAISE NOTICE 'LIVRO TABLE CREATED SUCCESSFULLY';
+	END IF;
 
-create table usuario(
-    id uuid not null primary key,
-    login varchar(20) not null unique,
-    senha varchar(300) not null,
-    roles varchar[]
-);
+	-- USUARIO (corrigido)
+	IF EXISTS (
+		SELECT 1 FROM information_schema.columns
+		WHERE table_name = 'usuario'
+	) THEN
+		RAISE NOTICE 'USUARIO TABLE ALREADY EXISTS...';
+	ELSE
+		RAISE NOTICE 'CREATING USUARIO TABLE';
+		CREATE TABLE usuario (
+			id UUID NOT NULL PRIMARY KEY,
+			nome VARCHAR(150) NOT NULL,
+			email VARCHAR(100),
+			senha VARCHAR(255),
+			data_cadastro TIMESTAMP,
+			data_atualizacao TIMESTAMP
+		);
+		RAISE NOTICE 'USUARIO TABLE CREATED SUCCESSFULLY';
+	END IF;
+
+	RAISE NOTICE 'END OF MIGRATION';
+END;
+$$

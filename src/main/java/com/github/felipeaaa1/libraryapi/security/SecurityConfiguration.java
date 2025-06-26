@@ -8,6 +8,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -40,7 +41,8 @@ public class SecurityConfiguration {
                 .formLogin(configurer->{
                     configurer.loginPage("/login").permitAll();
                 })
-                .httpBasic(Customizer.withDefaults())
+//                removendo para que na documentação não abrir um form
+//                .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> {
                     authorize.requestMatchers(HttpMethod.POST,"/usuario").permitAll();
                     authorize.requestMatchers("/login").permitAll();
@@ -65,6 +67,23 @@ public class SecurityConfiguration {
                 .addFilterAfter(jwtCustomAuthenticationFilter, BearerTokenAuthenticationFilter.class)
                 .build();
     }
+    //metodo para o filterchain do websecurity ignorar os endpoints abaixo (diferente de permit-all pq n passa por nada da segurança)
+    // só isso e a dependencia no pom ja tinha dado certo, o resto é firula
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer (){
+        return  web -> {
+            web.ignoring().requestMatchers(
+                  "/v2/api-docs/**",
+                    "/v3/api-docs/**",
+                  "/swagger-resources/**",
+                  "/swagger-ui.html",
+                  "/swagger-ui/**",
+                  "/webjars/**"
+
+          );
+        };
+    }
+
     //    metodo para alterar o prefixo da authenticação para nada, basicamente tirari o ROLE_
     @Bean
     public GrantedAuthorityDefaults grantedAuthorityDefaults(){

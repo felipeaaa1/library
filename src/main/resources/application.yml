@@ -24,3 +24,6 @@ spring:
             client-secret: ${GOOGLE_SECRET}
   flyway:
     baseline-on-migrate: true
+
+  springdoc:
+    override-with-generic-response: false

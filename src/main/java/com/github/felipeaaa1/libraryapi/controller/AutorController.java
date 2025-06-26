@@ -9,6 +9,10 @@ import com.github.felipeaaa1.libraryapi.model.Autor;
 import com.github.felipeaaa1.libraryapi.model.Usuario;
 import com.github.felipeaaa1.libraryapi.service.AutorService;
 import com.github.felipeaaa1.libraryapi.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 @RequestMapping("autor")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+@Tag(name = "Autores")
 public class AutorController implements GenericController {
 
     private final AutorService autorService;
@@ -34,6 +39,10 @@ public class AutorController implements GenericController {
 
 
     @GetMapping
+    @Operation(summary = "Listar", description = "End-point para listar todos os autores")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Realiza pesquisa de autores")
+    })
     public ResponseEntity<List<AutorDTO>> listarAutores(
             @RequestParam(name = "nome", required = false) String nome,
             @RequestParam(name = "nacionalidade", required = false) String nacionalidade) {
@@ -49,8 +58,14 @@ public class AutorController implements GenericController {
     }
 
     @GetMapping("{id}")
+    @Operation(summary = "Obter detalhes", description = "End-point para retornar detalhes de um autor")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Autor encontrado"),
+            @ApiResponse(responseCode = "401", description = "Sem permissão"),
+            @ApiResponse(responseCode = "404", description = "Autor não encontrado")
+    })
     public ResponseEntity<?> getAutor(@PathVariable(name = "id") String id) {
-
+//TODO: validar o retorno que aqui era pra retornar só um autor e no swagger ta retornando um JSON maluco
         return ResponseEntity.ok(autorService.obterPorId(id));
 
 //        return autorService.obterPorId(id)
@@ -62,6 +77,12 @@ public class AutorController implements GenericController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Salvar", description = "End-point para salvar um novo autor")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cadastrado com sucesso"),
+            @ApiResponse(responseCode = "422", description = "Erro de validação"),
+            @ApiResponse(responseCode = "409", description = "Autor ja cadstrado")
+    })
     public ResponseEntity<?> salvar(@RequestBody @Valid AutorDTO autorDTO) {
 
         Autor autor = autorMapper.toEntity(autorDTO);
@@ -73,6 +94,12 @@ public class AutorController implements GenericController {
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Excluir", description = "End-point para excluir um autor")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Autor não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Autor possui livros cadastrados")
+    })
     public ResponseEntity<?> deletarAutor(@PathVariable(name = "id") String id) {
         autorService.deletar(id);
         return ResponseEntity.noContent().build();
@@ -80,6 +107,13 @@ public class AutorController implements GenericController {
 
     @PutMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Atualizar autor", description = "End-point para atualizar dados de um autor")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Autor atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Autor não encontrado"),
+            @ApiResponse(responseCode = "409", description = "Autor ja cadastrado")
+
+    })
     public ResponseEntity<?> atualizarAutor(@PathVariable(name = "id") String id
             , @RequestBody @Valid AutorDTO autorDTO) {
 

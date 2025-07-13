@@ -2,6 +2,7 @@ package com.github.felipeaaa1.libraryapi.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(unique = true)
     private String clientId;
 
     private String clientSecret;

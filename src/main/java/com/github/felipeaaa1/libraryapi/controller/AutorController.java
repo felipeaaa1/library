@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.event.Level;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 @Tag(name = "Autores")
+@Slf4j
 public class AutorController implements GenericController {
 
     private final AutorService autorService;
@@ -47,15 +50,20 @@ public class AutorController implements GenericController {
             @RequestParam(name = "nome", required = false) String nome,
             @RequestParam(name = "nacionalidade", required = false) String nacionalidade) {
 
-        
-        List<Autor> lista = autorService.pesquisarComExemple(nome, nacionalidade);
-        List<AutorDTO> listaDTO =
-                lista.stream().map(
-                        autorMapper::toDTO
-                ).collect(Collectors.toList());
+        log.warn("mensagem de log que vai pro console e pro arquivo");
+        try {
+            List<Autor> lista = autorService.pesquisarComExemple(nome, nacionalidade);
+            List<AutorDTO> listaDTO =
+                    lista.stream().map(
+                            autorMapper::toDTO
+                    ).collect(Collectors.toList());
 
-        return ResponseEntity.ok(listaDTO);
-    }
+            return ResponseEntity.ok(listaDTO);
+        } catch (Exception e) {
+            log.error("erro com log: "+e.getMessage());
+            throw new RuntimeException(e);
+        }
+        }
 
     @GetMapping("{id}")
     @Operation(summary = "Obter detalhes", description = "End-point para retornar detalhes de um autor")

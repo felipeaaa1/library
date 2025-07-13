@@ -4,6 +4,11 @@
 spring:
   application:
     name: libraryapi
+# habilitar cor no log
+  output:
+    ansi:
+      enabled: ALWAYS
+#  configurações de banco
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}
@@ -27,3 +32,22 @@ spring:
 
   springdoc:
     override-with-generic-response: false
+logging:
+  pattern:
+    console: '%clr(%d{dd-MM-yyyy HH:mm:ss}){faint} %clr(%5p) %clr([%t]){faint} %clr(%-40.40logger){cyan} %clr(:){yellow} %m%n'
+  file:
+    name: app.log
+  level:
+    root: warn
+    com:
+      github:
+        felipeaaa1: info
+management:
+  server:
+    port: 8090
+  endpoints:
+    web:
+      exposure:
+#        se quiser colocar só alguns colocar:
+#        include: beans, logfile, health
+        include: '*'

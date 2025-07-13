@@ -12,12 +12,14 @@ import com.github.felipeaaa1.libraryapi.service.LivroService;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.event.WindowFocusListener;
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.util.Optional;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @RequestMapping("livro")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'GERENTE')")
+@Slf4j
 public class LivroController implements GenericController {
     private final LivroService livroService;
     private final LivroMapper livroMapper;
@@ -70,8 +73,11 @@ public class LivroController implements GenericController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<?> salvar(@RequestBody @Valid RequestLivroDTO requestLivroDTO) {
+        if (log.isInfoEnabled()) {
+            log.info("Cadastro de livro: {}", requestLivroDTO.titulo());
+        }
         Livro livro = livroMapper.toEntity(requestLivroDTO);
         Livro livroCadastrado = livroService.salvar(livro);
         var url = gerarHeaderLocation(livroCadastrado.getId());
@@ -79,7 +85,7 @@ public class LivroController implements GenericController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<?> atualizarLivro(@PathVariable(name = "id") String id,
                                             @RequestBody @Valid RequestLivroDTO dto){
         return livroService.getPorId(id)
@@ -99,8 +105,9 @@ public class LivroController implements GenericController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<?> deletar(@PathVariable(name = "id") String id){
+        log.info("Deletando autor com ID: {}", id);
         return livroService.getPorId(id)
                 .map( livro -> {
                     livroService.deletar(livro);

@@ -73,12 +73,13 @@ public class SecurityConfiguration {
     public WebSecurityCustomizer webSecurityCustomizer (){
         return  web -> {
             web.ignoring().requestMatchers(
-                  "/v2/api-docs/**",
+                    "/v2/api-docs/**",
                     "/v3/api-docs/**",
-                  "/swagger-resources/**",
-                  "/swagger-ui.html",
-                  "/swagger-ui/**",
-                  "/webjars/**"
+                    "/swagger-resources/**",
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/webjars/**",
+                    "/actuator/**"
 
           );
         };

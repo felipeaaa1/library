@@ -58,3 +58,100 @@ Service de Livro e Autor
 Inclusão de auditoria ao registrar um novo registro, associando o usuário logado:
 String usuarioLogado = securityService.obterUsuarioLogado();
 novoRegistro.setUsuarioCriacao(usuarioLogado);
+
+
+comando para buildar a aplicação:
+PS C:\repos\library> ./mvnw clean package -DskipTests
+
+executar via power shell:
+PS C:\repos\library> java -jar .\target\libraryapi-0.0.1-SNAPSHOT.jar
+
+dockerizar a aplicação:
+1) acessar: https://hub.docker.com/_/maven
+
+2) escolher uma tag que contenha o maven e o java
+
+3) executar o comando  na pasta que contenha o Dockerfile configurado
+'docker build --tag felipeAlves/library_api .'
+
+4) exec comando para rodar a imagem que acabamos de criar :
+docker run  --name library-api-container -e DB_URL=jdbc:postgresql://library-db:5432/library -e DB_USER=postgres -e DB_PASSWORD=admin -e GOOGLE_ID=941676976160-7frtkaf8lr8mib1im7m50elmcrfi6qvi.apps.googleusercontent.com -e GOOGLE_SECRET=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1 --network library-network -d -p 8080:8080 -p 9090:9090 felipeAlves/library_api
+
+5) Criar tag com repositório do Docker Hub
+docker tag felipe/libraryapi felipeaaa/tag_library:1.0.0
+
+6) Login no Docker Hub
+docker login -u felipeaaa
+
+7) Push da imagem
+docker push felipeaaa/tag_library:1.0.0
+
+
+Se tudo estiver correto, você verá:
+
+
+Login Succeeded
+PS C:\repos\library> docker push felipeaaa/tag_library:1.0.0
+The push refers to repository [docker.io/felipeaaa/tag_library]
+9fe0de22bd8b: Pushed
+ba40bee57929: Pushed
+28a610e2271c: Pushed
+094089c4d1a0: Pushed
+7c4587b2b28d: Pushed
+1.0.0: digest: sha256:8bb639013d82071d2830b5adddb197b1382065bbec90e4c4ad260776cff5ea58 size: 856
+
+E a imagem vai aparecer no Docker Hub em:
+🔗 hub.docker.com/repository/docker/felipeaaa/tag_library
+
+
+
+# Publicando uma Imagem Docker no Docker Hub
+
+## 1. Objetivo
+
+Evitar que a imagem seja criada apenas localmente e garantir que ela seja enviada diretamente para sua conta no Docker Hub.
+
+---
+
+## 2. Acessar o Docker Hub no Terminal
+
+```bash
+# Faz login no Docker Hub pela CLI
+docker login
+```
+
+> Isso garante que você esteja autenticado e possa publicar na sua conta. Se pular esse passo, a imagem será criada apenas localmente.
+
+---
+
+## 3. Nomear a Imagem com Seu Usuário
+
+```bash
+# Constrói a imagem já com seu usuário do Docker Hub no nome
+docker build -t seuUsuario/seuRepositorio:tag .
+```
+
+> Substitua `seuUsuario` pelo seu nome de usuário no Docker Hub.
+> Exemplo: `docker build -t felipealves/library_api:latest .`
+
+---
+
+## 4. Subir a Imagem para o Docker Hub
+
+```bash
+# Envia a imagem para o repositório remoto
+docker push seuUsuario/seuRepositorio:tag
+```
+
+> A imagem agora está pública no seu Docker Hub e poderá ser usada em qualquer lugar com `docker pull`.
+
+---
+
+## 5. Conclusão
+
+Se você **não fizer login** ou **não nomear corretamente a imagem com seu usuário**, ela será criada **somente localmente**.
+
+Para garantir que a imagem já vá para sua conta:
+
+1. Faça `docker login` antes de tudo;
+2. Use `-t seuUsuario/seuRepositorio` no `docker build`.

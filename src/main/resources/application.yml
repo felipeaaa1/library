@@ -4,6 +4,9 @@
 spring:
   application:
     name: libraryapi
+    #colocar qual application vai rodar, no caso aqui ta rodando o "application-hmg.yml" ou as config no fim desse .yml
+#  profiles:
+#    active: hmg
 # habilitar cor no log
   output:
     ansi:
@@ -11,7 +14,7 @@ spring:
 #  configurações de banco
   datasource:
     url: ${DB_URL}
-    username: ${DB_USER}
+    username: ${DB_USER:postgres}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   config:
@@ -34,9 +37,9 @@ spring:
     override-with-generic-response: false
 logging:
   pattern:
-    console: '%clr(%d{dd-MM-yyyy HH:mm:ss}){faint} %clr(%5p) %clr([%t]){faint} %clr(%-40.40logger){cyan} %clr(:){yellow} %m%n'
-  file:
-    name: app.log
+#    console: '%clr(%d{dd-MM-yyyy HH:mm:ss}){faint} %clr(%5p) %clr([%t]){faint} %clr(%-40.40logger){cyan} %clr(:){yellow} %m%n'
+#  file:
+#    name: app.log
   level:
     root: warn
     com:
@@ -44,10 +47,26 @@ logging:
         felipeaaa1: info
 management:
   server:
-    port: 8090
+    port: 9090
   endpoints:
     web:
       exposure:
 #        se quiser colocar só alguns colocar:
 #        include: beans, logfile, health
         include: '*'
+
+---
+spring:
+  config:
+    activate:
+      on:profile: prod
+  jpa:
+    show-sql: false
+
+---
+spring:
+  config:
+    activate:
+      on:profile: hmg
+  jpa:
+    show-sql: true

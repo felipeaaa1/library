@@ -55,6 +55,7 @@ A imagem ficará visível em:
 
 ## 6. Observações Finais
 
+
 * Sempre **faça login antes do build** se quiser facilitar o push depois.
 * Sempre **use o nome do seu usuário no Docker Hub no `docker build`**.
 * Evite `docker tag` depois de buildar com nome incorreto. Já nomeie certo desde o começo.

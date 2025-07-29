@@ -61,7 +61,7 @@ spring:
     activate:
       on:profile: prod
   jpa:
-    show-sql: false
+    show-sql: true
 
 ---
 spring:

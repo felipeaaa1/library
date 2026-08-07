@@ -12,8 +12,8 @@ Este projeto faz parte de um curso avançado de Spring Boot, com o objetivo de d
 - [x] CRUD completo para autores e livros
 - [x] Spring Data JPA
 - [x] Restfull API com Bean Validation
-- [ ] Spring Security com OAuth2 e JWT
-- [ ] Login Social
-- [ ] Documentação com Swagger/OpenAPI
-- [ ] Uso de containers Docker
-- [ ] Deploy na AWS
+- [x] Spring Security com OAuth2 e JWT
+- [x] Login Social
+- [x] Documentação com Swagger/OpenAPI
+- [x] Uso de containers Docker
+- [x] Deploy na AWS
